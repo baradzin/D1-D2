@@ -8,16 +8,14 @@ namespace FileSystemVisitor
     public class FileSystemVisitor
     {
         public delegate bool Filtration(string filtrationString);
-        public delegate void ProgressHandler(object sender, FileSystemVisitorEventArgs e);
-        public delegate void FileFindedHandler(object sender, FileSystemVisitorEventArgs e);
+        public delegate void FileVisitorEventHandler(object sender, FileSystemVisitorEventArgs e);
 
-        public event ProgressHandler ProgressStart;
-        public event ProgressHandler ProgressFinished;
-        public event FileFindedHandler FileFindedEvent;
-        public event FileFindedHandler DirectoryFindedEvent;
-        public event FileFindedHandler FilteredFileFindedEvent;
-        public event FileFindedHandler FilteredDirectoryFindedEvent;
-
+        public event FileVisitorEventHandler ProgressStartEvent;
+        public event FileVisitorEventHandler ProgressFinishedEvent;
+        public event FileVisitorEventHandler FileFindedEvent;
+        public event FileVisitorEventHandler DirectoryFindedEvent;
+        public event FileVisitorEventHandler FilteredFileFindedEvent;
+        public event FileVisitorEventHandler FilteredDirectoryFindedEvent;
 
         public DirectoryInfo Root { get; }
         public List<File> FileList { get;}
@@ -26,8 +24,7 @@ namespace FileSystemVisitor
         private bool _excludeFilteredFiles = false;
         private Filtration _filtrationFunc = null;
 
-
-        public FileSystemVisitor(string root, Filtration filtrationFunc)
+        public FileSystemVisitor(string root, Filtration filtrationFunc = null)
         {
             if (Directory.Exists(root)) {
                 this.Root = new DirectoryInfo(root);
@@ -39,31 +36,21 @@ namespace FileSystemVisitor
             }
         }
 
-        public void SubscribeEvents(bool stopSearchFlag, bool excludeFilesFlag, bool stopSearchFilteredFlag, bool excludeFilesFilteredFlag)
+        public void SubscribeEvents(bool stopSearchFilteredFlag, bool excludeFilesFilteredFlag)
         {
             FileSystemVisitorEventArgs handler = new FileSystemVisitorEventArgs();
-            this.ProgressStart += handler.ProgressWriter;
-            this.ProgressFinished += handler.ProgressWriter;
 
+            ProgressStartEvent += handler.ProgressWriter;
+            ProgressFinishedEvent += handler.ProgressWriter;
             FileFindedEvent += handler.FilePathWriter;
             DirectoryFindedEvent += handler.FilePathWriter;
             FilteredFileFindedEvent += handler.FilePathWriter;
             FilteredDirectoryFindedEvent += handler.FilePathWriter;
 
-            if (stopSearchFlag) {
-                FileFindedEvent += this.CancelSearch;
-                DirectoryFindedEvent += this.CancelSearch;                   
-            }
-
             if (stopSearchFilteredFlag)
             {
                 FilteredFileFindedEvent += this.CancelSearch;
                 FilteredDirectoryFindedEvent += this.CancelSearch;
-            }
-
-            if (excludeFilesFlag) {
-                FileFindedEvent += this.ExcludeFile;
-                DirectoryFindedEvent += this.ExcludeFile;              
             }
 
             if (excludeFilesFilteredFlag)
@@ -73,21 +60,11 @@ namespace FileSystemVisitor
             }
         }
 
-        public FileSystemVisitor(string root)
-        {
-            if (Directory.Exists(root)) {
-                this.Root = new DirectoryInfo(root);
-                this.FileList = new List<File>();
-            } else {
-                throw new DirectoryNotFoundException($"Directory {root} not found");
-            }
-        }
-
         public void StartWalkingOnDirectory()
         {
-            bool isFiltered = _filtrationFunc != null;
+            ProgressStartEvent(this, new FileSystemVisitorEventArgs("Start traversing..."));
 
-            ProgressStart(this, new FileSystemVisitorEventArgs("Start searching"));
+            bool isFiltered = _filtrationFunc != null;
 
             foreach (var file in WalkDirectoryTree(Root))
             {
@@ -111,16 +88,11 @@ namespace FileSystemVisitor
                 }              
             }
 
-            if (_excludeFilteredFiles)
-            {
-                Console.WriteLine("-------------------------------------------------------------------------------------");
-                foreach (var file in FileList.Except(ExcludedFileList).ToList())
-                {
-                    Console.WriteLine(file.Path);
-                }
-            }
+            ProgressFinishedEvent(this, new FileSystemVisitorEventArgs("Search finished"));
 
-            ProgressFinished(this, new FileSystemVisitorEventArgs("Search finished"));
+            if (_excludeFilteredFiles) {
+                PrintFilteredFileList();
+            }          
         }
 
         private IEnumerable<File> WalkDirectoryTree(DirectoryInfo root)
@@ -169,5 +141,14 @@ namespace FileSystemVisitor
             this.ExcludedFileList.Add(e.File);
             this._excludeFilteredFiles = true;
         }
+
+        public void PrintFilteredFileList()
+        {
+            Console.WriteLine("\n\n------------------------------------------List of Files with excluded files---------------------------------------------\n");
+            foreach (var file in FileList.Except(ExcludedFileList).ToList())
+            {
+                Console.WriteLine(file.Path);
+            }
+        }  
     }
 }

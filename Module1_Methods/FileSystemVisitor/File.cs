@@ -17,7 +17,5 @@
             this.Path = path;
             this.IsDirectory = isDirectory;
         }
-
-
     }
 }
