@@ -1,53 +1,126 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FileSystemVisitor
 {
     public class FileSystemVisitor
     {
         public delegate bool Filtration(string filtrationString);
-        public delegate void StartProgress();
-        public delegate void FinishedProgress();
-        public delegate bool FileFinded(string fileName);
-        public delegate bool DirectoryFinded(string directoryName);
+        public delegate void ProgressHandler(object sender, FileSystemVisitorEventArgs e);
+        public delegate void FileFindedHandler(object sender, FileSystemVisitorEventArgs e);
 
-        public event StartProgress ProgressStart;
-        public event FinishedProgress ProgressFinished;
-        public event FileFinded FileFinded_ActionRequired;
-        public event DirectoryFinded DirectoryFinded_ActionRequired;
+        public event ProgressHandler ProgressStart;
+        public event ProgressHandler ProgressFinished;
+        public event FileFindedHandler FileFindedEvent;
+        public event FileFindedHandler DirectoryFindedEvent;
+        public event FileFindedHandler FilteredFileFindedEvent;
+        public event FileFindedHandler FilteredDirectoryFindedEvent;
 
 
         public DirectoryInfo Root { get; }
-        public List<string> listFiles { get; set; }
-        Filtration _filtrationFunc;
+        public List<File> FileList { get;}
+        public List<File> ExcludedFileList { get; }
+        private bool _cancelSearchFlag = false;
+        private bool _excludeFilteredFiles = false;
+        private Filtration _filtrationFunc = null;
+
 
         public FileSystemVisitor(string root, Filtration filtrationFunc)
         {
-            if (Directory.Exists(root))
-            {
+            if (Directory.Exists(root)) {
                 this.Root = new DirectoryInfo(root);
-                this.listFiles = new List<string>();
+                this.FileList = new List<File>();
+                this.ExcludedFileList = new List<File>();
                 this._filtrationFunc = filtrationFunc;
+            } else {
+                throw new DirectoryNotFoundException($"Directory {root} not found");
             }
-            else
+        }
+
+        public void SubscribeEvents(bool stopSearchFlag, bool excludeFilesFlag, bool stopSearchFilteredFlag, bool excludeFilesFilteredFlag)
+        {
+            FileSystemVisitorEventArgs handler = new FileSystemVisitorEventArgs();
+            this.ProgressStart += handler.ProgressWriter;
+            this.ProgressFinished += handler.ProgressWriter;
+
+            FileFindedEvent += handler.FilePathWriter;
+            DirectoryFindedEvent += handler.FilePathWriter;
+            FilteredFileFindedEvent += handler.FilePathWriter;
+            FilteredDirectoryFindedEvent += handler.FilePathWriter;
+
+            if (stopSearchFlag) {
+                FileFindedEvent += this.CancelSearch;
+                DirectoryFindedEvent += this.CancelSearch;                   
+            }
+
+            if (stopSearchFilteredFlag)
             {
+                FilteredFileFindedEvent += this.CancelSearch;
+                FilteredDirectoryFindedEvent += this.CancelSearch;
+            }
+
+            if (excludeFilesFlag) {
+                FileFindedEvent += this.ExcludeFile;
+                DirectoryFindedEvent += this.ExcludeFile;              
+            }
+
+            if (excludeFilesFilteredFlag)
+            {
+                FilteredFileFindedEvent += this.ExcludeFile;
+                FilteredDirectoryFindedEvent += this.ExcludeFile;
+            }
+        }
+
+        public FileSystemVisitor(string root)
+        {
+            if (Directory.Exists(root)) {
+                this.Root = new DirectoryInfo(root);
+                this.FileList = new List<File>();
+            } else {
                 throw new DirectoryNotFoundException($"Directory {root} not found");
             }
         }
 
         public void StartWalkingOnDirectory()
         {
-            //Start
-            ProgressStart();
+            bool isFiltered = _filtrationFunc != null;
+
+            ProgressStart(this, new FileSystemVisitorEventArgs("Start searching"));
 
             foreach (var file in WalkDirectoryTree(Root))
             {
-                Console.WriteLine(file.Path);
+                this.FileList.Add(file);
+                if (isFiltered && _filtrationFunc(file.Name)) {
+                    if (file.IsDirectory) {
+                        FilteredDirectoryFindedEvent(this, new FileSystemVisitorEventArgs(file));
+                    } else {
+                        FilteredFileFindedEvent(this, new FileSystemVisitorEventArgs(file));
+                    }
+                } else {
+                    if (file.IsDirectory) {
+                        DirectoryFindedEvent(this, new FileSystemVisitorEventArgs(file));
+                    } else {
+                        FileFindedEvent(this, new FileSystemVisitorEventArgs(file));
+                    }
+                }
+
+                if (_cancelSearchFlag) {
+                    break;
+                }              
             }
 
-            //Finished
-            ProgressFinished();
+            if (_excludeFilteredFiles)
+            {
+                Console.WriteLine("-------------------------------------------------------------------------------------");
+                foreach (var file in FileList.Except(ExcludedFileList).ToList())
+                {
+                    Console.WriteLine(file.Path);
+                }
+            }
+
+            ProgressFinished(this, new FileSystemVisitorEventArgs("Search finished"));
         }
 
         private IEnumerable<File> WalkDirectoryTree(DirectoryInfo root)
@@ -83,6 +156,18 @@ namespace FileSystemVisitor
                 }
             }
             yield break;
+        }
+
+        private void CancelSearch(object sender, FileSystemVisitorEventArgs e)
+        {
+            Console.WriteLine("Search stopped");
+            this._cancelSearchFlag = true;
+        }
+
+        private void ExcludeFile(object sender, FileSystemVisitorEventArgs e)
+        {
+            this.ExcludedFileList.Add(e.File);
+            this._excludeFilteredFiles = true;
         }
     }
 }
