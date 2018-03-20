@@ -21,7 +21,6 @@ namespace FileSystemVisitor
         public List<File> FileList { get;}
         public List<File> ExcludedFileList { get; }
         private bool _cancelSearchFlag = false;
-        private bool _excludeFilteredFiles = false;
         private Filtration _filtrationFunc = null;
 
         public FileSystemVisitor(string root, Filtration filtrationFunc = null)
@@ -60,7 +59,7 @@ namespace FileSystemVisitor
             }
         }
 
-        public void StartWalkingOnDirectory()
+        public List<File> StartWalkingOnDirectory()
         {
             ProgressStartEvent(this, new FileSystemVisitorEventArgs("Start traversing..."));
 
@@ -90,9 +89,7 @@ namespace FileSystemVisitor
 
             ProgressFinishedEvent(this, new FileSystemVisitorEventArgs("Search finished"));
 
-            if (_excludeFilteredFiles) {
-                PrintFilteredFileList();
-            }          
+            return FileList.Except(ExcludedFileList).ToList();
         }
 
         private IEnumerable<File> WalkDirectoryTree(DirectoryInfo root)
@@ -139,16 +136,24 @@ namespace FileSystemVisitor
         private void ExcludeFile(object sender, FileSystemVisitorEventArgs e)
         {
             this.ExcludedFileList.Add(e.File);
-            this._excludeFilteredFiles = true;
         }
 
         public void PrintFilteredFileList()
         {
-            Console.WriteLine("\n\n------------------------------------------List of Files with excluded files---------------------------------------------\n");
+            Console.WriteLine("------------------------------------------List of Files with excluded files---------------------------------------------\n");
             foreach (var file in FileList.Except(ExcludedFileList).ToList())
             {
                 Console.WriteLine(file.Path);
             }
         }  
+
+        public void PrintAllFindedFiles()
+        {
+            Console.WriteLine("------------------------------------------List all Files---------------------------------------------\n");
+            foreach (var file in FileList)
+            {
+                Console.WriteLine(file.Path);
+            }
+        }
     }
 }

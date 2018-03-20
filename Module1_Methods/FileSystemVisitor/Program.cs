@@ -14,7 +14,7 @@ namespace FileSystemVisitor
             FileSystemVisitor fsv = new FileSystemVisitor(root, filtration);
             fsv.SubscribeEvents(stopSearch, excludeFiles);
             fsv.StartWalkingOnDirectory();
-            Console.ReadKey();
+            fsv.PrintFilteredFileList();
         }
     }
 }
