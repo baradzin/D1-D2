@@ -10,6 +10,8 @@ namespace FileSystemVisitor
         public string Message { get; set; }
         public File File { get; set; }
 
+        public FileSystemVisitorEventArgs() { }
+
         public FileSystemVisitorEventArgs(File file)
         {
             this.File = file;
@@ -19,8 +21,6 @@ namespace FileSystemVisitor
         {
             this.Message = message;
         }
-
-        public FileSystemVisitorEventArgs() { }
 
         public void ProgressWriter(object sender, FileSystemVisitorEventArgs e)
         {

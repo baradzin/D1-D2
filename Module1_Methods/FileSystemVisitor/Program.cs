@@ -7,11 +7,14 @@ namespace FileSystemVisitor
         static void Main(string[] args)
         {
             FileSystemVisitor.Filtration filtration = (x) => x.Length == 10;
+            bool stopSearch = true;
+            bool excludeFiles = true;
+            string root = @"..\..\..\";
 
-            FileSystemVisitor fsv = new FileSystemVisitor(@"..\..\..\", filtration);
-            fsv.SubscribeEvents(false, false, false, true);
+            FileSystemVisitor fsv = new FileSystemVisitor(root, filtration);
+            fsv.SubscribeEvents(stopSearch, excludeFiles);
             fsv.StartWalkingOnDirectory();
-            Console.ReadKey();
+            fsv.PrintFilteredFileList();
         }
     }
 }
