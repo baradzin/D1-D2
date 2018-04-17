@@ -229,28 +229,51 @@ namespace SampleQueries
             }
         }
 
-        [Category("Restriction Operators")]
+        [Category("Group Operators")]
         [Title("Task 10")]
         [Description("10.	Сделайте среднегодовую статистику активности клиентов по месяцам" +
             " (без учета года), статистику по годам," +
             " по годам и месяцам (т.е. когда один месяц в разные годы имеет своё значение).")]
         public void Linq10()
         {
-            //var customers = dataSource.Customers;
-            //var monthStatExceptYear = customers.SelectMany(customer => customer.Orders).
-           //                          .OrderBy(order => order.OrderDate.Month)
+            var orders = dataSource.Customers.SelectMany(customer => customer.Orders);
 
-            //                         .Select(gr => new
-            //                         {
-            //                             City = gr.Key,
-            //                             AverageProfit = gr.Average(cst => cst.Orders.Count() != 0 ? cst.Orders.Average(ord => ord.Total) : 0),
-            //                             AverageIntensity = gr.Average(cst => cst.Orders.Count())
-            //                         });
-            //Console.WriteLine(targetSet.Count());
-            //foreach (var x in targetSet)
-            //{
-            //    Console.WriteLine($"{x.City} {x.AverageProfit}$ Intensity = {x.AverageIntensity}");
-            //}
+            var stat = (from order in orders
+                        orderby order.OrderDate.Month
+                        group order by order.OrderDate.Month into monthGroup
+                        select new
+                        {
+                            StatPeriod = monthGroup.Key.ToString(),
+                            OrderCount = monthGroup.Count(),
+                            AverageTotal = monthGroup.Average(ord => ord.Total),
+                            Total = monthGroup.Sum(ord => ord.Total),
+                        }).Union(from order in orders
+                                 orderby order.OrderDate.Year
+                                 group order by order.OrderDate.Year into yearGroup
+                                 select new
+                                 {
+                                     StatPeriod = yearGroup.Key.ToString(),
+                                     OrderCount = yearGroup.Count(),
+                                     AverageTotal = yearGroup.Average(ord => ord.Total),
+                                     Total = yearGroup.Sum(ord => ord.Total)
+                                 }).Union(from orderInYearGroup in orders
+                                          orderby orderInYearGroup.OrderDate.Year, orderInYearGroup.OrderDate.Month
+                                          group orderInYearGroup by new { Year = orderInYearGroup.OrderDate.Year, Month = orderInYearGroup.OrderDate.Month } into monthGroup
+                                          select new
+                                          {
+                                              StatPeriod = $"{monthGroup.Key.Month}.{monthGroup.Key.Year}",
+                                              OrderCount = monthGroup.Count(),
+                                              AverageTotal = monthGroup.Average(ord => ord.Total),
+                                              Total = monthGroup.Sum(ord => ord.Total),
+                                          }); 
+
+            foreach (var statItem in stat)
+            {
+                Console.WriteLine($"{statItem.StatPeriod}");
+                Console.WriteLine($"   Order Count {statItem.OrderCount}");
+                Console.WriteLine($"   Average Total {statItem.AverageTotal}");
+                Console.WriteLine($"   Total {statItem.Total}");
+            }
         }
     }
 }
