@@ -100,11 +100,20 @@ namespace SampleQueries
             var customers = dataSource.Customers;
 
             var targetCustomers = customers.Select(x => new { Customer = x, Order = 
-                x.Orders.DefaultIfEmpty().Aggregate((minOrd, order) => (minOrd == null ? DateTime.MaxValue : minOrd.OrderDate) < minOrd.OrderDate ? order : minOrd)});
+                x.Orders.DefaultIfEmpty().Aggregate((minOrd, order) => (minOrd == null ? DateTime.MaxValue : minOrd.OrderDate) < order.OrderDate ? minOrd : order)});
+
+            var target = customers.Select(x => new {x.CustomerID, StartDate = x.Orders.Length != 0 ? x.Orders.Min(y => y.OrderDate) : DateTime.MinValue});
 
             foreach (var x in targetCustomers)
             {
                 Console.WriteLine($"{x.Customer.CustomerID} FirstOrder = {(x.Order == null ? "NONE" : x.Order.OrderDate.ToString())}");
+            }
+
+            Console.WriteLine($"******************************************************************************");
+
+            foreach (var x in target)
+            {
+                Console.WriteLine($"{x.CustomerID} FirstOrder = {x.StartDate}");
             }
         }
 
@@ -118,7 +127,7 @@ namespace SampleQueries
             var targetCustomers = customers.Select(x => new {
                 Customer = x,
                 Order =
-                x.Orders.DefaultIfEmpty().Aggregate((minOrd, order) => (minOrd == null ? DateTime.MaxValue : minOrd.OrderDate) < minOrd.OrderDate ? order : minOrd)
+                x.Orders.DefaultIfEmpty().Aggregate((minOrd, order) => (minOrd == null ? DateTime.MaxValue : minOrd.OrderDate) < order.OrderDate ? minOrd : order)
             }).
             OrderBy(x => x.Order!= null ? x.Order.OrderDate.Year : DateTime.MinValue.Year).
             ThenBy(x => x.Order != null ? x.Order.OrderDate.Month : DateTime.MinValue.Month).
@@ -144,7 +153,7 @@ namespace SampleQueries
                                                     || !x.PostalCode.All(char.IsDigit)
                                                     || x.Region == null 
                                                     || x.Phone == null 
-                                                    || x.Phone.First().Equals("("));
+                                                    || x.Phone.First().Equals('('));
             ObjectDumper.Write(targetCustomers);
         }
 
@@ -220,7 +229,7 @@ namespace SampleQueries
                                      {
                                          City = gr.Key,
                                          AverageProfit = gr.Average(cst => cst.Orders.Count() != 0 ? cst.Orders.Average(ord => ord.Total) : 0),
-                                         AverageIntensity = gr.Average(cst => cst.Orders.Count())
+                                         AverageIntensity = gr.Average(cst => cst.Orders.Length)
                                      });
 
             foreach (var x in targetSet)
