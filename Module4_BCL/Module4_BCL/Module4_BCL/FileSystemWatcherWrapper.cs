@@ -21,7 +21,7 @@ namespace Module4_BCL
         private string defaultKey = "defaultFolder";
 
         public bool NumberFiles { get; set; }
-        private int fileNumber = 1;
+        private static int fileNumber = 1;
 
         public bool MarkDateForFileMoving { get; set; }
 
@@ -61,7 +61,10 @@ namespace Module4_BCL
         private void UpdateFileNameIfRequired(string fileName, out string targetFileName) 
         {
             try {
-                targetFileName = NumberFiles ? $"({fileNumber++}){fileName}" : fileName;
+                object locker = new object();
+                lock (locker) {
+                    targetFileName = NumberFiles ? $"({fileNumber++}){fileName}" : fileName;
+                }
                 if (MarkDateForFileMoving)
                 {
                     targetFileName = $"({DateTime.Now.ToString("dd_MM_yyyy")}){targetFileName}";
