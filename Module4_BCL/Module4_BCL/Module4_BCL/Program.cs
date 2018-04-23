@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Configuration;
 using System.Globalization;
+using System.Text;
 
 namespace Module4_BCL
 {
     class Program
     {
         private static bool keepRunning = true;
+        public static TimeZoneInfo TIMEZONE = TimeZoneInfo.FindSystemTimeZoneById(ConfigurationManager.AppSettings["TimeZone"]);
 
         static void Main(string[] args)
         {
@@ -22,6 +24,7 @@ namespace Module4_BCL
 
         private static void InitSystemEvents()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
                 e.Cancel = true;
                 keepRunning = false;

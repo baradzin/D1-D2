@@ -35,7 +35,8 @@ namespace Module4_BCL
 
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine(string.Format(Resources.FileFindedMessage, e.Name, new FileInfo(e.FullPath).CreationTime, e.FullPath));
+            Console.WriteLine(string.Format(Resources.FileFindedMessage, e.Name,
+                TimeZoneInfo.ConvertTime(new FileInfo(e.FullPath).CreationTime, Program.TIMEZONE), e.FullPath));
             MoveFile(e.Name, e.FullPath);
         }
 
@@ -48,7 +49,7 @@ namespace Module4_BCL
                     UpdateFileNameIfRequired(fileName, out targetFileName);
                     destinationFullPath = System.IO.Path.Combine(destinationFullPath, targetFileName);
                     File.Move(fullPath, destinationFullPath);
-                    Console.WriteLine(string.Format(Resources.FileSuccessfullMovedMessage,fileName, destinationFullPath));
+                    Console.WriteLine(string.Format(Resources.FileSuccessfullMovedMessage, fileName, destinationFullPath));
                     return true;
                 }
             } catch { }
@@ -65,7 +66,7 @@ namespace Module4_BCL
                 }
                 if (MarkDateForFileMoving)
                 {
-                    targetFileName = $"({DateTime.Now.ToString("dd_MM_yyyy")}){targetFileName}";
+                    targetFileName = $"({TimeZoneInfo.ConvertTime(DateTime.Now, Program.TIMEZONE).ToString("dd_MM_yyyy")}){targetFileName}";
                 }
             } catch {
                 Console.WriteLine(Resources.UnableToRenameFile);
