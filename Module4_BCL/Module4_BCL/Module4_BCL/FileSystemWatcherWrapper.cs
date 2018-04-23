@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -37,7 +35,7 @@ namespace Module4_BCL
 
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine($"File {e.Name} was created {new FileInfo(e.FullPath).CreationTime} and finded in {e.FullPath}.");
+            Console.WriteLine(string.Format(Resources.FileFindedMessage, e.Name, new FileInfo(e.FullPath).CreationTime, e.FullPath));
             MoveFile(e.Name, e.FullPath);
         }
 
@@ -50,11 +48,11 @@ namespace Module4_BCL
                     UpdateFileNameIfRequired(fileName, out targetFileName);
                     destinationFullPath = System.IO.Path.Combine(destinationFullPath, targetFileName);
                     File.Move(fullPath, destinationFullPath);
-                    Console.WriteLine($"File {fileName} was successfull moved to {destinationFullPath}");
+                    Console.WriteLine(string.Format(Resources.FileSuccessfullMovedMessage,fileName, destinationFullPath));
                     return true;
                 }
             } catch { }
-            Console.WriteLine($"File {fileName} wasn't moved");
+            Console.WriteLine(Resources.UnableToMoveFile, fileName);
             return false;
         }
 
@@ -70,7 +68,7 @@ namespace Module4_BCL
                     targetFileName = $"({DateTime.Now.ToString("dd_MM_yyyy")}){targetFileName}";
                 }
             } catch {
-                Console.WriteLine("Unable to rename file");
+                Console.WriteLine(Resources.UnableToRenameFile);
                 targetFileName = fileName;
             }
             
@@ -85,18 +83,18 @@ namespace Module4_BCL
                     if (Regex.IsMatch(fileName, extPattern, RegexOptions.IgnoreCase))
                     {
                         destinationFolderPath = TemplateFilePattern_TargetPath[extPattern];
-                        Console.WriteLine($"Pattern for {fileName} was found: Pattern {extPattern}, Destination Folder {destinationFolderPath}");
+                        Console.WriteLine(string.Format(Resources.PatternFoundMessage, fileName, extPattern, destinationFolderPath));
                         return true;
                     }
                 }
 
                 destinationFolderPath = TemplateFilePattern_TargetPath[defaultKey];
-                Console.WriteLine($"Pattern for {fileName} wasn't found: Default destination folder {destinationFolderPath}");
+                Console.WriteLine(string.Format(Resources.DefaultPatternFound, fileName, destinationFolderPath));
                 return true;
             }
             catch { }
             destinationFolderPath = Path;
-            Console.WriteLine($"Pattern for {fileName} wasn't find");
+            Console.WriteLine(Resources.NotDefinedDefaultFolder);
             return false;
         }
     }

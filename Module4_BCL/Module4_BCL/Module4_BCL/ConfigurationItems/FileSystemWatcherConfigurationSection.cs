@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Configuration;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Configuration;
 
 namespace Module4_BCL.ConfigurationItems
 {

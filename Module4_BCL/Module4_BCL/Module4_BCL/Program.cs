@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Configuration;
+using System.Globalization;
 
 namespace Module4_BCL
 {
@@ -15,13 +11,13 @@ namespace Module4_BCL
         static void Main(string[] args)
         {
             InitSystemEvents();
-            Console.WriteLine("Enter Ctrl+C or Ctrl+Break to exit");
+            Console.WriteLine(Resources.ExitHotKeysMessage);
 
             FileSystemWatcherManager FSWM = new FileSystemWatcherManager();
             FSWM.RunSystemWatchers();
 
             while (keepRunning) { }
-            Console.WriteLine("Exited successfully");
+            Console.WriteLine(Resources.ExitMessage);
         }
 
         private static void InitSystemEvents()
@@ -30,6 +26,10 @@ namespace Module4_BCL
                 e.Cancel = true;
                 keepRunning = false;
             };
+
+            var cultureInfo = new CultureInfo(ConfigurationManager.AppSettings["Localisation"]);
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
         }
     }
 }
