@@ -13,6 +13,8 @@ namespace Module4_BCL
         /// </summary>
         public Dictionary<string, string> TemplateFilePattern_TargetPath { get; set; }
 
+        static object locker = new object();
+
         /// <summary>
         /// Default Key for files without needed extension
         /// </summary>
@@ -59,8 +61,7 @@ namespace Module4_BCL
 
         private void UpdateFileNameIfRequired(string fileName, out string targetFileName) 
         {
-            try {
-                object locker = new object();
+            try {               
                 lock (locker) {
                     targetFileName = NumberFiles ? $"({fileNumber++}){fileName}" : fileName;
                 }
