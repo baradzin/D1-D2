@@ -102,4 +102,14 @@
     <Build Include="dbo\Stored Procedures\SalesByCategory.sql" />
     <None Include="Scripts\ScriptsIgnoredOnImport.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\Patch1_1.sql" />
+    <None Include="Scripts\Patch1_3.sql" />
+    <None Include="Scripts\Categories.sql" />
+    <None Include="Scripts\Suppliers.sql" />
+    <None Include="Scripts\Products.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Script.PostDeployment.sql" />
+  </ItemGroup>
 </Project>
