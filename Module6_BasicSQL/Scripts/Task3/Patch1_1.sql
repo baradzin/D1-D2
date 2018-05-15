@@ -1,7 +1,4 @@
-/*Patch 1.1*/
-/*Добавляет таблицу данных кредитных карт сотрудников:
- номер карты, дата истечения, имя card holder, ссылку на сотрудника, …*/
-GO
+п»їGO
 use "Northwind"
 GO
 if exists (select * from sysobjects where id = object_id('dbo.CreditCards') and sysstat & 0xf = 3)
@@ -29,14 +26,3 @@ CREATE TABLE "CreditCards" (
 		"EmployeeID"
 	),
 )
-
-/*GO
-set quoted_identifier on
-go
-set identity_insert [Northwind].[dbo].[CreditCards] on
-go
-ALTER TABLE [Northwind].[dbo].[CreditCards] NOCHECK CONSTRAINT ALL
-GO
-INSERT INTO [Northwind].[dbo].[CreditCards] (CreditCardID, CardType, CardNumber, ExpMonth, ExpYear, CVV, CardHolderName, EmployeeID)
-VALUES ('1', 'VISA', '2112 5456 4231', '5', '2021', '150', 'Anton Novikau', 2);
-*/
