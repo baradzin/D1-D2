@@ -50,20 +50,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Attributes\ExportAttribute.cs" />
-    <Compile Include="Attributes\ImportAttribute.cs" />
-    <Compile Include="Attributes\ImportConstructorAttribute.cs" />
-    <Compile Include="IContainer.cs" />
-    <Compile Include="IoC.cs" />
-    <Compile Include="Objects\CustomerBLL.cs" />
-    <Compile Include="Objects\CustomerBLL_CTOR.cs" />
-    <Compile Include="Objects\CustomerDAL.cs" />
-    <Compile Include="Objects\ICustomerDAL.cs" />
-    <Compile Include="Objects\Logger.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="Container.cs" />
+    <Compile Include="ICustomerDAL.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="ImportAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTest.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

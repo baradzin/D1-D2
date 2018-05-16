@@ -4,19 +4,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using MyIoC.Objects;
 
 namespace MyIoC
 {
 	public class Container
 	{
-        public Assembly Asm { get; private set; }
-
-
-        public void AddAssembly(Assembly assembly)
-		{
-            Asm = assembly;
-        }
+		public void AddAssembly(Assembly assembly)
+		{ }
 
 		public void AddType(Type type)
 		{ }
@@ -40,10 +34,10 @@ namespace MyIoC
 			var container = new Container();
 			container.AddAssembly(Assembly.GetExecutingAssembly());
 
-			var customerBLL = (CustomerBLL_CTOR)container.CreateInstance(typeof(CustomerBLL_CTOR));
-			var customerBLL2 = container.CreateInstance<CustomerBLL_CTOR>();
+			var customerBLL = (CustomerBLL)container.CreateInstance(typeof(CustomerBLL));
+			var customerBLL2 = container.CreateInstance<CustomerBLL>();
 
-			container.AddType(typeof(CustomerBLL_CTOR));
+			container.AddType(typeof(CustomerBLL));
 			container.AddType(typeof(Logger));
 			container.AddType(typeof(CustomerDAL), typeof(ICustomerDAL));
 		}
