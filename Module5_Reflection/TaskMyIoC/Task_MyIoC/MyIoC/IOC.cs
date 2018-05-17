@@ -91,13 +91,19 @@ namespace MyIoC
         {
             try
             {
-
-                var properties = type.GetProperties()
-                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
-
-
                 Type resolved = registeredTypes.ContainsKey(type) ? registeredTypes[type] : type;
 
+                //Check for initialization via properties
+                var properties = type.GetProperties()
+                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
+                if(properties.Count()!= 0) {
+                    var obj = Activator.CreateInstance(resolved);
+                    foreach(var prop in properties) {
+                        prop.SetValue(obj, Resolve(prop.GetType()));
+                    }
+                    return obj;
+                }
+                
                 var ctor = resolved.GetConstructors().First();
                 var ctorParams = ctor.GetParameters().Where(w => w.GetType().IsClass);
 
