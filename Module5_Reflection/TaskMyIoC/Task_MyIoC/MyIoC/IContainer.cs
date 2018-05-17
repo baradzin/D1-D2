@@ -8,8 +8,8 @@ namespace MyIoC
 {
     public interface IContainer
     {
-        void Register<TContract, TImplementation>();
-        void Register<TImplementation>();
+        void Register(Type contract, Type implementation);
+        void Register(Type implementation);
         T Resolve<T>() where T : class;
         Dictionary<Type, Type> GetAllRegisteredTypes();
     }

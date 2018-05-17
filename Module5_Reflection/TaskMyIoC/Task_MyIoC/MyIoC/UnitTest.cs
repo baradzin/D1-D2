@@ -12,40 +12,14 @@ namespace MyIoC
         public void TestMethod()
         {
             IoC container = new IoC(Assembly.GetExecutingAssembly());
-            container.Register<CustomerBLL_CTOR>();
+            container.Register(typeof(CustomerBLL));
             //container.Register<Logger>();
-            container.Register<ICustomerDAL, CustomerDAL>();
+            container.Register(typeof(ICustomerDAL), typeof(CustomerDAL));
 
-            var ctorBLL = container.Resolve<CustomerBLL_CTOR>();
+            var ctorBLL = container.Resolve<CustomerBLL>();
             var bbb = container.Resolve<ICustomerDAL>();
         }
     }
-    //public class Container
-    //{
-    //    public Assembly Asm { get; private set; }
-
-
-    //    public void AddAssembly(Assembly assembly)
-    //    {
-    //        Asm = assembly;
-    //    }
-
-    //    public void AddType(Type type)
-    //    { }
-
-    //    public void AddType(Type type, Type baseType)
-    //    { }
-
-    //    public object CreateInstance(Type type)
-    //    {
-    //        return null;
-    //    }
-
-    //    public T CreateInstance<T>()
-    //    {
-    //        return default(T);
-    //    }
-
 
     //    public void Sample()
     //    {

@@ -7,7 +7,14 @@ using MyIoC.Attributes;
 
 namespace MyIoC.Objects
 {
+    
     [Export(typeof(ICustomerDAL))]
     public class CustomerDAL : ICustomerDAL
-    { }
+    {
+        public string yProperty { get; set; }
+        public CustomerDAL()
+        {
+            this.yProperty  = "BLABLA";
+        }
+    }
 }

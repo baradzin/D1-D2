@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyIoC.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -30,13 +31,7 @@ namespace MyIoC
         /// <returns>returns the IoC container</returns>
         public void Register<TContract, TImplementation>()
         {
-            var tmp = typeof(TContract);
-            if (registeredTypes.ContainsKey(tmp))
-                registeredTypes[tmp] = typeof(TImplementation);
-            else
-            {
-                registeredTypes.Add(tmp, typeof(TImplementation));
-            }
+            Register(typeof(TContract), typeof(TImplementation));
         }
 
         /// <summary>
@@ -46,7 +41,23 @@ namespace MyIoC
         /// <returns>returns the IoC container</returns>
         public void Register<TImplementation>()
         {
-            Register<TImplementation, TImplementation>();
+            Register(typeof(TImplementation), typeof(TImplementation));
+        }
+
+        public void Register(Type contract, Type implementation)
+        {
+            var tmp = contract;
+            if (registeredTypes.ContainsKey(tmp))
+                registeredTypes[tmp] = implementation;
+            else
+            {
+                registeredTypes.Add(tmp, implementation);
+            }
+        }
+        
+        public void Register(Type implementation)
+        {
+            Register(implementation, implementation);
         }
 
         /// <summary>
@@ -64,6 +75,13 @@ namespace MyIoC
             return targetObject;
         }
 
+        public object Resolve(Type type)
+        {
+            if (!registeredTypes.Any())
+                throw new Exception("No entity has been registered yet.");
+            return ResolveParameter(type);
+        }
+
         /// <summary>
         /// Create instance of object
         /// </summary>
@@ -73,6 +91,11 @@ namespace MyIoC
         {
             try
             {
+
+                var properties = type.GetProperties()
+                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
+
+
                 Type resolved = registeredTypes.ContainsKey(type) ? registeredTypes[type] : type;
 
                 var ctor = resolved.GetConstructors().First();
@@ -100,7 +123,6 @@ namespace MyIoC
                 var err = string.Format("'{0}' Cannot be resolved. Check your registered types", type.FullName);
                 throw new Exception(err);
             }
-
         }
 
         /// <summary>

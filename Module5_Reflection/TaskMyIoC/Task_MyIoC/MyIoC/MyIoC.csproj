@@ -60,6 +60,7 @@
     <Compile Include="Objects\CustomerDAL.cs" />
     <Compile Include="Objects\ICustomerDAL.cs" />
     <Compile Include="Objects\Logger.cs" />
+    <Compile Include="PluginInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTest.cs" />
   </ItemGroup>
