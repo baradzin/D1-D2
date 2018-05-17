@@ -13,7 +13,7 @@ namespace MyIoC
         {
             IoC container = new IoC(Assembly.GetExecutingAssembly());
             container.Register<CustomerBLL_CTOR>();
-            container.Register<Logger>();
+            //container.Register<Logger>();
             container.Register<ICustomerDAL, CustomerDAL>();
 
             var ctorBLL = container.Resolve<CustomerBLL_CTOR>();

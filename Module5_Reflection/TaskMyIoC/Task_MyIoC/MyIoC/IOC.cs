@@ -73,26 +73,27 @@ namespace MyIoC
         {
             try
             {
-                Type resolved = registeredTypes[type];
+                Type resolved = registeredTypes.ContainsKey(type) ? registeredTypes[type] : type;
 
-                var cnstr = resolved.GetConstructors().First();
-                var cnstrParams = cnstr.GetParameters().Where(w => w.GetType().IsClass);
+                var ctor = resolved.GetConstructors().First();
+                var ctorParams = ctor.GetParameters().Where(w => w.GetType().IsClass);
 
                 // If constructor hasn't parameter, Create an instance of object
-                if (!cnstrParams.Any())
+                //Resolve?
+                if (!ctorParams.Any())
                     return Activator.CreateInstance(resolved);
 
-                var paramLst = new List<object>(cnstrParams.Count());
+                var paramLst = new List<object>(ctorParams.Count());
 
                 // Iterate through parameters and resolve each parameter
-                for (int i = 0; i < cnstrParams.Count(); i++)
+                for (int i = 0; i < ctorParams.Count(); i++)
                 {
-                    var paramType = cnstrParams.ElementAt(i).ParameterType;
+                    var paramType = ctorParams.ElementAt(i).ParameterType;
                     var resolvedParam = ResolveParameter(paramType);
                     paramLst.Add(resolvedParam);
                 }
 
-                return cnstr.Invoke(paramLst.ToArray());
+                return ctor.Invoke(paramLst.ToArray());
             }
             catch (Exception)
             {
