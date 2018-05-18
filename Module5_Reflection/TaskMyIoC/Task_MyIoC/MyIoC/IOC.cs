@@ -1,4 +1,4 @@
-﻿using MyIoC.Attributes;
+﻿using Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +10,12 @@ namespace MyIoC
 {
     public class IoC : IContainer
     {
-        private Assembly _asm;
+        //private Assembly _asm;
 
         Dictionary<Type, Type> registeredTypes =
             new Dictionary<Type, Type>();
 
-        //Dictionary<Type, object> instances =
-        //    new Dictionary<Type, object>();
-
-        public IoC(Assembly assembly)
-        {
-            this._asm = assembly;
-        }
+        public IoC() { }
 
         /// <summary>
         /// Register types
@@ -60,6 +54,12 @@ namespace MyIoC
             Register(implementation, implementation);
         }
 
+        public void Register(Assembly assembly)
+        {
+            RegisterAllExportedClasses(assembly);
+            RegisterAllImportedClasses(assembly);
+        }
+
         /// <summary>
         /// Create instance of target Type
         /// </summary>
@@ -91,6 +91,8 @@ namespace MyIoC
         {
             try
             {
+                bool flag = registeredTypes.ContainsKey(type);
+                //WTF, return not value
                 Type resolved = registeredTypes.ContainsKey(type) ? registeredTypes[type] : type;
 
                 //Check for initialization via properties
@@ -99,7 +101,7 @@ namespace MyIoC
                 if(properties.Count()!= 0) {
                     var obj = Activator.CreateInstance(resolved);
                     foreach(var prop in properties) {
-                        prop.SetValue(obj, Resolve(prop.GetType()));
+                        prop.SetValue(obj, Resolve(prop.PropertyType));
                     }
                     return obj;
                 }
@@ -148,6 +150,48 @@ namespace MyIoC
         public bool IsRegistered<Type>()
         {
             return registeredTypes.Any(a => a.Key == typeof(Type));
+        }
+
+        private void RegisterAllExportedClasses(Assembly assembly)
+        {
+            foreach (Type type in assembly.GetTypes())
+            {
+                var exportAtr = type.GetCustomAttributes(typeof(ExportAttribute), true).FirstOrDefault()
+                    as ExportAttribute;
+                if (exportAtr != null)
+                {
+                    if (exportAtr.Contract != null)
+                    {
+                        Register(exportAtr.Contract, type);
+                    }
+                    else
+                    {
+                        Register(type);
+                    }
+                }
+            }
+        }
+
+        private void RegisterAllImportedClasses(Assembly assembly)
+        {
+            foreach (Type type in assembly.GetTypes())
+            {
+                var importCtor = type.GetCustomAttributes(typeof(ImportConstructorAttribute), true).FirstOrDefault()
+                    as ImportConstructorAttribute;
+                if (importCtor != null)
+                {
+                    Register(type);
+                }
+                else
+                {
+                    var properties = type.GetProperties()
+                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
+                    if (properties.Count() != 0)
+                    {
+                        Register(type);
+                    }
+                }
+            }
         }
     }
 }

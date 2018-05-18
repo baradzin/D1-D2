@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyIoC.Attributes;
+using Attributes;
 
-namespace MyIoC.Objects
+namespace Objects
 {
     [Export]
     public class Logger

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Reflection;
-using MyIoC.Objects;
+using Objects;
 
 namespace MyIoC
 {
@@ -11,10 +11,11 @@ namespace MyIoC
         [TestMethod]
         public void TestMethod()
         {
-            IoC container = new IoC(Assembly.GetExecutingAssembly());
-            container.Register(typeof(CustomerBLL));
+            IoC container = new IoC();
+            container.Register(Assembly.LoadFrom(@"D:\D1-D2\Module5_Reflection\TaskMyIoC\Task_MyIoC\IoCSample\bin\Debug\IoCSample.dll"));
+            //container.Register(typeof(CustomerBLL));
             //container.Register<Logger>();
-            container.Register(typeof(ICustomerDAL), typeof(CustomerDAL));
+            //container.Register(typeof(ICustomerDAL), typeof(CustomerDAL));
 
             var ctorBLL = container.Resolve<CustomerBLL>();
             var bbb = container.Resolve<ICustomerDAL>();
