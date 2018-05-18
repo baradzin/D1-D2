@@ -53,16 +53,11 @@
     <Compile Include="IContainer.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Connector\Connector.csproj">
       <Project>{8830dab8-50b7-4c79-bc38-d540799448c2}</Project>
       <Name>Connector</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IoCSample\IoCSample.csproj">
-      <Project>{92498ca6-bfda-4d0b-bac1-d204873d0122}</Project>
-      <Name>IoCSample</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

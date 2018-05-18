@@ -6,13 +6,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyIoC
+namespace MyIoC.Container
 {
     public class IoC : IContainer
     {
         //private Assembly _asm;
 
-        Dictionary<Type, Type> registeredTypes =
+        public Dictionary<Type, Type> registeredTypes =
             new Dictionary<Type, Type>();
 
         public IoC() { }
