@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Attributes;
 
-namespace IoCSample
+namespace MyIoc.Tests.TestObjects
 {
-    public interface ICustomerDAL { }
+    public interface ITest
+    {
+        string IProperty { get; set; }
+    }
 }

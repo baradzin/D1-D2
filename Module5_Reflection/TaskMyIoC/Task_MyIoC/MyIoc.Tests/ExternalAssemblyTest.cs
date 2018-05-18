@@ -9,9 +9,9 @@ using MyIoC.Container;
 namespace MyIoc.Tests
 {
     [TestClass]
-    public class UnitTest
+    public class ExternalAssemblyTest
     {
-        private Assembly asm = Assembly.LoadFrom(@"E:\Mentoring\D1-D2\Module5_Reflection\TaskMyIoC\Task_MyIoC\IoCSample\bin\Debug\IoCSample.dll");
+        private Assembly asm = Assembly.LoadFrom(@"D:\D1-D2\Module5_Reflection\TaskMyIoC\Task_MyIoC\IoCSample\bin\Debug\IoCSample.dll");
 
         [TestMethod]
         public void InitiateAllComponents()

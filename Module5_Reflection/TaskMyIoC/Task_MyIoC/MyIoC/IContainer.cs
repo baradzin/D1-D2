@@ -8,9 +8,9 @@ namespace MyIoC.Container
 {
     public interface IContainer
     {
-        void Register(Type contract, Type implementation);
-        void Register(Type implementation);
+        void Register(Type contract, Type implementation, bool isConstructorInjection);
+        void Register(Type implementation, bool isConstructorInjection);
         T Resolve<T>() where T : class;
-        Dictionary<Type, Type> GetAllRegisteredTypes();
+        Dictionary<Type, Tuple<Type, bool>> GetAllRegisteredTypes();
     }
 }

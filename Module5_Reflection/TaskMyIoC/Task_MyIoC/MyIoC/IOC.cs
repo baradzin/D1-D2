@@ -12,8 +12,8 @@ namespace MyIoC.Container
     {
         //private Assembly _asm;
 
-        public Dictionary<Type, Type> registeredTypes =
-            new Dictionary<Type, Type>();
+        public Dictionary<Type, Tuple<Type, bool>> registeredTypes =
+            new Dictionary<Type, Tuple<Type, bool>>();
 
         public IoC() { }
 
@@ -38,20 +38,20 @@ namespace MyIoC.Container
             Register(typeof(TImplementation), typeof(TImplementation));
         }
 
-        public void Register(Type contract, Type implementation)
+        public void Register(Type contract, Type implementation, bool isConstructorInjection = true)
         {
             var tmp = contract;
             if (registeredTypes.ContainsKey(tmp))
-                registeredTypes[tmp] = implementation;
+                registeredTypes[tmp] = new Tuple<Type, bool>(implementation, isConstructorInjection);
             else
             {
-                registeredTypes.Add(tmp, implementation);
+                registeredTypes.Add(tmp, new Tuple<Type, bool>(implementation, isConstructorInjection));
             }
         }
-        
-        public void Register(Type implementation)
+
+        public void Register(Type implementation, bool isConstructorInjection = true)
         {
-            Register(implementation, implementation);
+            Register(implementation, implementation, isConstructorInjection);
         }
 
         public void Register(Assembly assembly)
@@ -91,40 +91,26 @@ namespace MyIoC.Container
         {
             try
             {
-                bool flag = registeredTypes.ContainsKey(type);
-                //WTF, return not value
-                Type resolved = registeredTypes.ContainsKey(type) ? registeredTypes[type] : type;
+                bool isConstructorInjection = true;
+                Type resolved;
 
-                //Check for initialization via properties
-                var properties = type.GetProperties()
-                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
-                if(properties.Count()!= 0) {
-                    var obj = Activator.CreateInstance(resolved);
-                    foreach(var prop in properties) {
-                        prop.SetValue(obj, Resolve(prop.PropertyType));
-                    }
-                    return obj;
-                }
-                
-                var ctor = resolved.GetConstructors().First();
-                var ctorParams = ctor.GetParameters().Where(w => w.GetType().IsClass);
-
-                // If constructor hasn't parameter, Create an instance of object
-                //Resolve?
-                if (!ctorParams.Any())
-                    return Activator.CreateInstance(resolved);
-
-                var paramLst = new List<object>(ctorParams.Count());
-
-                // Iterate through parameters and resolve each parameter
-                for (int i = 0; i < ctorParams.Count(); i++)
+                if (registeredTypes.ContainsKey(type))
                 {
-                    var paramType = ctorParams.ElementAt(i).ParameterType;
-                    var resolvedParam = ResolveParameter(paramType);
-                    paramLst.Add(resolvedParam);
+                    resolved = registeredTypes[type].Item1;
+                    isConstructorInjection = registeredTypes[type].Item2;
+                }
+                else
+                {
+                    resolved = type;
                 }
 
-                return ctor.Invoke(paramLst.ToArray());
+                //Check for initialization way
+                if (!isConstructorInjection)
+                {
+                    return ResolveParameterViaProperties(resolved);
+                }
+                return ResolveParameterViaCtor(resolved);
+
             }
             catch (Exception)
             {
@@ -133,11 +119,46 @@ namespace MyIoC.Container
             }
         }
 
+        private object ResolveParameterViaProperties(Type type)
+        {
+            var properties = type.GetProperties()
+                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
+            var obj = Activator.CreateInstance(type);
+            foreach (var prop in properties)
+            {
+                prop.SetValue(obj, Resolve(prop.PropertyType));
+            }
+            return obj;
+        }
+
+        private object ResolveParameterViaCtor(Type type)
+        {
+            var ctor = type.GetConstructors().First();
+            var ctorParams = ctor.GetParameters().Where(w => w.GetType().IsClass);
+
+            // If constructor hasn't parameter, Create an instance of object
+            //Resolve?
+            if (!ctorParams.Any())
+                return Activator.CreateInstance(type);
+
+            var paramLst = new List<object>(ctorParams.Count());
+
+            // Iterate through parameters and resolve each parameter
+            for (int i = 0; i < ctorParams.Count(); i++)
+            {
+                var paramType = ctorParams.ElementAt(i).ParameterType;
+                var resolvedParam = ResolveParameter(paramType);
+                paramLst.Add(resolvedParam);
+            }
+
+            return ctor.Invoke(paramLst.ToArray());
+        }
+
         /// <summary>
         /// Get all of the registered types for this container
         /// </summary>
         /// <returns></returns>
-        public Dictionary<Type, Type> GetAllRegisteredTypes()
+        public Dictionary<Type, Tuple<Type, bool>> GetAllRegisteredTypes()
         {
             return registeredTypes;
         }
@@ -178,21 +199,14 @@ namespace MyIoC.Container
             {
                 var importCtor = type.GetCustomAttributes(typeof(ImportConstructorAttribute), true).FirstOrDefault()
                     as ImportConstructorAttribute;
-                if (importCtor != null)
-                {
+                if (importCtor != null) {
                     Register(type);
                 }
-                else
-                {
-                    var properties = type.GetProperties()
-                        .Where(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null);
-                    if (properties.Count() != 0)
-                    {
-                        Register(type);
-                    }
+                else if (type.GetProperties()
+                     .Any(p => p.GetCustomAttribute(typeof(ImportAttribute), false) != null)) {
+                    Register(type, false);
                 }
             }
         }
     }
 }
- 

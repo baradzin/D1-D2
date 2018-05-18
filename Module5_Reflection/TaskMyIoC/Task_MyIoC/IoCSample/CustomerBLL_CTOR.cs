@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Attributes;
 
-namespace Objects
+namespace IoCSample
 {
     [ImportConstructor]
     public class CustomerBLL_CTOR

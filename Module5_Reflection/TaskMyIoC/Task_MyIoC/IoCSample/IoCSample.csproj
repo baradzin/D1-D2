@@ -43,6 +43,7 @@
     <Compile Include="CustomerBLL.cs" />
     <Compile Include="CustomerBLL_CTOR.cs" />
     <Compile Include="CustomerDAL.cs" />
+    <Compile Include="DerivedCustomerBLL_CTOR.cs" />
     <Compile Include="ICustomerDAL.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
