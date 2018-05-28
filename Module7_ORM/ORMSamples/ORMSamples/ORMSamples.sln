@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperSamples", "DapperSamples\DapperSamples.csproj", "{E1A9416F-92A7-4212-ADA4-7DA0DC777596}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DBSamples", "Linq2DBSamples\Linq2DBSamples.csproj", "{1583A3FE-0491-4727-8DCA-DFB29C9CD828}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSamples", "EFSamples\EFSamples.csproj", "{F4FC09D6-E40C-4094-BF19-6B4E96E9C170}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1A9416F-92A7-4212-ADA4-7DA0DC777596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A9416F-92A7-4212-ADA4-7DA0DC777596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A9416F-92A7-4212-ADA4-7DA0DC777596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A9416F-92A7-4212-ADA4-7DA0DC777596}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1583A3FE-0491-4727-8DCA-DFB29C9CD828}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1583A3FE-0491-4727-8DCA-DFB29C9CD828}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1583A3FE-0491-4727-8DCA-DFB29C9CD828}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1583A3FE-0491-4727-8DCA-DFB29C9CD828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4FC09D6-E40C-4094-BF19-6B4E96E9C170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4FC09D6-E40C-4094-BF19-6B4E96E9C170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4FC09D6-E40C-4094-BF19-6B4E96E9C170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4FC09D6-E40C-4094-BF19-6B4E96E9C170}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
