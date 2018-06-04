@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Category.cs" />
+    <Compile Include="Entities\Supplier.cs" />
     <Compile Include="Task2.cs" />
     <Compile Include="Entities\MyModel.generated.cs">
       <AutoGen>True</AutoGen>

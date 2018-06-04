@@ -56,6 +56,86 @@ namespace Task1
         public void FullSaveGraph()
         {
 
+            Category cat1 = new Category { CategoryName = "Beverages" };
+            Category cat2 = new Category { CategoryName = "SomeCategory" };
+            Category cat3 = new Category { CategoryName = "Beverages" };
+
+            Supplier sup1 = new Supplier { CompanyName = "Nord-Ost-Fisch Handelsgesellschaft mbH" };
+            Supplier sup2 = new Supplier { CompanyName = "SomeSupplier" };
+            Supplier sup3 = new Supplier { CompanyName = "TestSupplier" };
+
+            var products = new List<Product>
+                {
+                    new Product
+                    {
+                        ProductName = "FirstPr",
+                        Category = InsertOrReturnExistValue(cat1),
+                        Supplier = InsertOrReturnExistValue(sup2)
+                    },
+                    new Product
+                    {
+                        ProductName = "SecondPr",
+                        Category = InsertOrReturnExistValue(cat2),
+                        Supplier = InsertOrReturnExistValue(sup2)
+                    },
+                    new Product
+                    {
+                        ProductName = "ThirdPr",
+                        Category = InsertOrReturnExistValue(cat3),
+                        Supplier = InsertOrReturnExistValue(sup3)
+                    }
+            };
+            foreach(var pr in products)
+            {
+                pr.CategoryID = pr.Category.CategoryID;
+                pr.SupplierID = pr.Supplier.SupplierID;
+                db.InsertWithIdentity(pr);
+            }
+        }
+
+        //•	Замена продукта на аналогичный: во всех еще неисполненных заказах 
+        //(считать таковыми заказы, у которых ShippedDate = NULL) заменить один продукт на другой
+        [Test]
+        public void ReplacementOfProducts()
+        {
+            var notShippedOrders = db.OrderDetails
+                                    .LoadWith(x => x.Order)
+                                    .Where(x => x.Order.ShippedDate == null).ToList();
+
+            HashSet<int> productsToReplace = new HashSet<int>(notShippedOrders.Select(x => x.ProductID));
+            Dictionary<int, int> productAnalogs = new Dictionary<int, int>();
+
+            var rand = new Random();
+            foreach (var pr in productsToReplace)
+            {
+                productAnalogs.Add(pr, rand.Next(db.Products.Count()));
+            }
+
+            foreach (var notShippedOrder in notShippedOrders)
+            {
+                var analog = productAnalogs[notShippedOrder.ProductID];
+                db.OrderDetails.Where(
+                    od => od.OrderID == notShippedOrder.OrderID && od.ProductID == notShippedOrder.ProductID).
+                        Update(od => new OrderDetail
+                        {
+                            ProductID = analog,
+                            UnitPrice = db.Products.Find(analog).UnitPrice.Value
+                        });
+            }
+        }
+
+        public T InsertOrReturnExistValue<T>(T entity) where T : class, IEquatable<T>
+        {
+            ITable<T> table = db.GetTable<T>();
+            foreach(var obj in table)
+            {
+                if (entity.Equals(obj)) {
+                    return obj;
+                }                   
+            }
+            db.InsertWithIdentity(entity);
+            return entity;
+            
         }
     }
 }
