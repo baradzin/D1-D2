@@ -35,11 +35,17 @@ namespace Analyzer
             Category, DiagnosticSeverity.Warning, isEnabledByDefault: true,
             description: "All controllers must be declared with attr Authorize");
 
+        private static DiagnosticDescriptor Rule3 = new DiagnosticDescriptor(DiagnosticId,
+            "Incorrect object in Entities namespace",
+            "Member {0} must be declared as public, contains prop Id and Name with [DataContract]",
+            Category, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+            description: "All entities in xxx.Entities namespace must be declared as public, contains prop Id and Name with [DataContract]");
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         {
             get
             {
-                return ImmutableArray.Create(Rule1, Rule2);
+                return ImmutableArray.Create(Rule1, Rule2, Rule3);
             }
         }
 
@@ -49,6 +55,7 @@ namespace Analyzer
             // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
             context.RegisterSymbolAction(FindIncorrectNamedController, SymbolKind.NamedType);
             context.RegisterSymbolAction(AllControllersMustHaveAttributeAuthorize, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalazyClassesInEntityNamespaces, SymbolKind.NamedType);
         }
 
         /// <summary>
@@ -105,6 +112,41 @@ namespace Analyzer
             }
         }
 
+        private static void AnalazyClassesInEntityNamespaces(SymbolAnalysisContext context)
+        {
+            var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
+            bool IsWarning = false;
+
+            if(namedTypeSymbol.ContainingNamespace.Name.EndsWith("Entities"))
+            {
+                if(namedTypeSymbol.DeclaredAccessibility != Accessibility.Public)
+                {
+                    IsWarning = true;
+                } else
+                {
+                    var idProp = namedTypeSymbol.GetMembers("Id").FirstOrDefault();
+                    var nameProp = namedTypeSymbol.GetMembers("Name").FirstOrDefault();
+                    if(idProp != null && nameProp != null)
+                    {;
+                        if ((idProp.DeclaredAccessibility & nameProp.DeclaredAccessibility )!= Accessibility.Public 
+                            || !idProp.GetAttributes().Any(x => x.AttributeClass.Name.Equals("DataContractAttribute")) 
+                            || !nameProp.GetAttributes().Any(x => x.AttributeClass.Name.Equals("DataContractAttribute")))
+                        {
+                            IsWarning = true;
+                        }
+                    } else
+                    {
+                        IsWarning = true;
+                    }
+                }
+
+                if (IsWarning)
+                {
+                    var diagnostic = Diagnostic.Create(Rule3, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
 
         private static bool HasAttribute(ISymbol symbol, string attrName)
         {
