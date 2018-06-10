@@ -7,6 +7,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Northwind", "AnalyzableProj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "AnalyzableProjects\WebApplication\WebApplication.csproj", "{D2C215DB-BAB8-49C1-8F20-8C3F7134EA5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetTest", "NugetTest\NugetTest.csproj", "{07AD2376-4ADB-4C4C-9363-57BDBE405138}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{D2C215DB-BAB8-49C1-8F20-8C3F7134EA5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2C215DB-BAB8-49C1-8F20-8C3F7134EA5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2C215DB-BAB8-49C1-8F20-8C3F7134EA5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07AD2376-4ADB-4C4C-9363-57BDBE405138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07AD2376-4ADB-4C4C-9363-57BDBE405138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07AD2376-4ADB-4C4C-9363-57BDBE405138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07AD2376-4ADB-4C4C-9363-57BDBE405138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
