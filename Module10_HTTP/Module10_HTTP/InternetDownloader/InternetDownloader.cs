@@ -10,6 +10,7 @@ using AngleSharp;
 using AngleSharp.Parser.Html;
 using AngleSharp.Dom.Html;
 using AngleSharp.Dom;
+using System.Threading;
 
 namespace InternetDownloaderLib
 {
@@ -33,12 +34,14 @@ namespace InternetDownloaderLib
 
         private const int maxFolderNameLimit = 65;
 
+        private ILogger _logger;
+
         public FileSaver fileSaver;
 
         public InternetDownloader() { }
 
         public InternetDownloader(string startUrl, string path, int depthLevel,
-            bool isVerbose, CrossingOption opt, string[] excludedExtension)
+            bool isVerbose, CrossingOption opt, string[] excludedExtension, ILogger logger)
         {
             this.StartUrl = startUrl;
             this.DirectoryPath = path;
@@ -47,24 +50,26 @@ namespace InternetDownloaderLib
             this.CrossingOption = opt;
             this.ExcludedExtension = excludedExtension;
             this._htmlParser = new HtmlParser();
-            this._config = Configuration.Default.WithDefaultLoader();
-            this.fileSaver = new FileSaver();
+            this._config = Configuration.Default.WithDefaultLoader();        
+            this._logger = logger;
+            this.fileSaver = new FileSaver(logger);
+            this._logger.IsVerbose = isVerbose;
         }
 
-        public void DownloadContent()
+        public async Task DownloadContent()
         {
-            DownloadContent(StartUrl, 0, DirectoryPath);
+            await DownloadContentAsync(StartUrl, 0, DirectoryPath);
         }
 
-        private void DownloadContent(string startUrl, int level, string folder)
+        private async Task DownloadContentAsync(string startUrl, int level, string folder)
         {
-            Console.WriteLine(startUrl + " processed");
+            _logger.WriteLine(startUrl + " processed");
             if (level > DepthLevel)
             {
                 return;
             }
 
-            var document = BrowsingContext.New(_config).OpenAsync(startUrl).GetAwaiter().GetResult();
+            var document = await BrowsingContext.New(_config).OpenAsync(startUrl);
             string fileName = GetDirectoryName(startUrl);
 
             string pathString = Path.Combine(folder, fileName);
@@ -76,18 +81,32 @@ namespace InternetDownloaderLib
 
             fileSaver.SaveSourceHtml(document.Source.Text, fileName, pathString);
 
-            foreach(var img in document.Images)
-            {
-                DownloadImage(img.ToString(), pathString);
+            foreach(var file in document.All.Where(x => x.HasAttribute("src")))
+            {             
+                await DownloadFile(document.Origin, file.Attributes["src"].Value, pathString);
             }
 
             foreach (IHtmlAnchorElement link in document.Links)
             {
-                DownloadContent(link.Href, level + 1, pathString);
+                if (CrossingOption == CrossingOption.OnlyInternalRecources)
+                {
+                    if (link.HostName.Equals(document.Domain))
+                    {
+                        await DownloadContentAsync(link.Href, level + 1, pathString);
+                    }
+                } else {
+                    if (link.HostName.Equals(document.Domain))
+                    {
+                        await DownloadContentAsync(link.Href, level + 1, pathString);
+                    } else
+                    {
+                        await DownloadContentAsync(link.Href, level + 1, DirectoryPath);
+                    }
+                }         
             }
         }
 
-        private void DownloadImage(string url, string folder)
+        private async Task DownloadFile(string baseUrl, string url, string folder)
         {
             try
             {
@@ -98,19 +117,20 @@ namespace InternetDownloaderLib
                 {
                     var fileName = Path.Combine(folder,
                         GetDirectoryName(url) + type);
-
+                    client.BaseAddress = new Uri(baseUrl);
                     using (var response = client.GetAsync(url).GetAwaiter().GetResult())
                     {
                         using (var imageFile = new FileStream(fileName, FileMode.Create))
                         {
-                            response.Content.CopyToAsync(imageFile).GetAwaiter().GetResult();
+                            await response.Content.CopyToAsync(imageFile);
+                            _logger.WriteLine($"Image from : {url} was downloaded");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to load the image: {0}", ex.Message);
+                _logger.Error($"Failed to load the image: {ex.Message}");
             }
         }
 

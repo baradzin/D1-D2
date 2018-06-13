@@ -9,28 +9,30 @@ namespace InternetDownloaderLib
 {
     public class FileSaver
     {
-        public FileSaver()
+        private ILogger _logger;
+        public FileSaver(ILogger logger)
         {
-
+            this._logger = logger;
         }
 
         public void SaveSourceHtml(string source, string urlName, string rootFolder)
         {
-            Console.WriteLine("Source found");
+            _logger.WriteLine($"Source from {urlName} found");
             try
             {
-                var fullName = Path.Combine(rootFolder, "_" + urlName);
+                var fullName = Path.Combine(rootFolder, "_" + urlName + ".html");
 
-                using (FileStream fs = File.Create(fullName + ".html"))
+                using (FileStream fs = File.Create(fullName))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes(source);
                     // Add some information to the file.
                     fs.Write(info, 0, info.Length);
+                    _logger.WriteLine($"File {fullName} was created");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error while downloading");
+                _logger.Error("Error while downloading");
             }
         }
 
