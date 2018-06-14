@@ -10,12 +10,12 @@ namespace Task2.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(Task2.Entities.NorthwindDB context)
         {
-            /*context.Categories.AddOrUpdate(
+            context.Categories.AddOrUpdate(
                 c => c.CategoryID,
                 new Category { CategoryID = 1, CategoryName = "Category1" },
                 new Category { CategoryID = 2, CategoryName = "Category2" });
@@ -29,7 +29,7 @@ namespace Task2.Migrations
                 t => t.TerritoryID,
                 new Territory { TerritoryID = "T1", TerritoryDescription = "Territory1", RegionID = 1 },
                 new Territory { TerritoryID = "T2", TerritoryDescription = "Territory2", RegionID = 1 });
-            context.SaveChanges();*/
+            context.SaveChanges();
         }
     }
 }

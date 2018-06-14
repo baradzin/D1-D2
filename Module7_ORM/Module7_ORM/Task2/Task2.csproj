@@ -56,9 +56,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\CreditCard.cs" />
-    <Compile Include="Migrations\201806132306443_Version_1.cs" />
-    <Compile Include="Migrations\201806132306443_Version_1.Designer.cs">
-      <DependentUpon>201806132306443_Version_1.cs</DependentUpon>
+    <Compile Include="Migrations\201806140822418_Version_1.cs" />
+    <Compile Include="Migrations\201806140822418_Version_1.Designer.cs">
+      <DependentUpon>201806140822418_Version_1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806140825352_Version_1_1.cs" />
+    <Compile Include="Migrations\201806140825352_Version_1_1.Designer.cs">
+      <DependentUpon>201806140825352_Version_1_1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806140833121_Version_1_3.cs" />
+    <Compile Include="Migrations\201806140833121_Version_1_3.Designer.cs">
+      <DependentUpon>201806140833121_Version_1_3.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="TestClass.cs" />
@@ -84,8 +92,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201806132306443_Version_1.resx">
-      <DependentUpon>201806132306443_Version_1.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201806140822418_Version_1.resx">
+      <DependentUpon>201806140822418_Version_1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806140825352_Version_1_1.resx">
+      <DependentUpon>201806140825352_Version_1_1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806140833121_Version_1_3.resx">
+      <DependentUpon>201806140833121_Version_1_3.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

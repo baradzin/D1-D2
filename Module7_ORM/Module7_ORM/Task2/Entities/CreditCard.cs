@@ -12,7 +12,7 @@ namespace Task2.Entities
 
         public string Number { get; set; }
 
-        public DateTime? ExpiryDate { get; set; }
+        public DateTime? ExpirationDate { get; set; }
 
         public string CardHolderName { get; set; }
 
